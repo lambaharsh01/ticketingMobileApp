@@ -2,10 +2,12 @@ import {View, Image, StatusBar, TextInput, Text, StyleSheet, Pressable, Alert } 
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import axios from 'axios';
+import baseUri from './urlRefrence';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const charterIcon=require('../assets/charterIcon.png');
-
 
 export default function App(){
 
@@ -30,14 +32,54 @@ export default function App(){
 
 
 
-useEffect(async()=>{
- 
+useEffect(()=>{
+ return;
 },[])
+
+const [disabled, setDisabled]=useState(false);
+
+const [process, setProcess]=useState(0);
 
 
 const [userName, setUserName]=useState('');
 const [userEmail, setUserEmail]=useState('');
+const [otpEntered, setOtpEntered]=useState('');
+
+const [gender, setGender]=useState('')
+const [age, setAge]=useState('')
+const [district, setDistrict]=useState('')
+const [occupation, setOccupation]=useState('')
+
+function sendOtp(){
+setDisabled(true);
+
+
+setProcess(prevCount=>prevCount+1)
+setDisabled(false);
+return;
+
+let url=baseUri+'/api/user/userEmailVerification';
+let bodyData={userName:userName , userEmail:userEmail};
+console.log(bodyData);
+  axios.post(url, bodyData)
+  .then((res)=>{
+    console.log(res);
+    setDisabled(false);
+  }).catch(err=>{
+    console.error(err);
+    setDisabled(false);
+  }
+  )
+}
   
+
+function checkOtp(){
+  setDisabled(true);
+
+  setProcess(prevCount=>prevCount+1)
+  setDisabled(false);
+  return;
+}
 
 
 return(
@@ -47,23 +89,52 @@ return(
 <Image source={charterIcon} style={{height:100, width:100, marginTop:'20%'}}/>
 </View>
 
+{(process===0) && <>
+
 <Text style={[styles.inputHeading, {marginTop:'13%'}]}>Enter Your Name</Text>
 
 <View style={styles.inputView}>
-<TextInput style={styles.inputStyle} value={userName} onChange={setUserName}></TextInput>
+<TextInput style={styles.inputStyle} value={userName} onChangeText={(text)=>{setUserName(text)}}></TextInput>
 </View>
 
 <Text style={[styles.inputHeading, {marginTop: '10%'}]}>Enter Your Email ID</Text>
 <View style={styles.inputView}>
-<TextInput style={styles.inputStyle} value={userEmail} onChangeText={(text)=>{setUserEmail(text.toLocaleLowerCase())}}></TextInput>
+<TextInput style={styles.inputStyle} autoCapitalize="none" value={userEmail} onChangeText={(text)=>{setUserEmail(text)}}></TextInput>
 </View>
 
+</>}
+
+
+{(process===1) && <>
+
+<Text style={[styles.inputHeading, {marginTop:'13%'}]}>Enter Otp</Text>
+
+<View style={styles.inputView}>
+<TextInput style={styles.inputStyle} value={otpEntered} onChangeText={(text)=>{setOtpEntered(text)}}></TextInput>
+</View>
+
+</>}
+
+{(process===2) && <>
+
+<Text style={[styles.inputHeading, {marginTop:'13%'}]}>Enter</Text>
+
+<View style={styles.inputView}>
+<TextInput style={styles.inputStyle} value={otpEntered} onChangeText={(text)=>{setOtpEntered(text)}}></TextInput>
+</View>
+
+</>}
+
+
 <View style={{ position: 'absolute', bottom: 0, marginBottom:10}}>
-<Pressable onPress={()=>{}}  style={styles.saveButton} >
+<Pressable disabled={disabled } onPress={()=>{
+ if(process===0)sendOtp();
+ if(process===1)checkOtp();
+
+  }}  style={styles.saveButton} >
   <Text style={[styles.buttonText, styles.saveButtonText]}>Proceed</Text>
 </Pressable> 
 </View>
-
 
 
 </View>

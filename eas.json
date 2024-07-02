@@ -2,6 +2,10 @@
   "cli": {
     "version": ">= 7.6.0"
   },
+  "expo": {
+    "name": "Charter",
+    "icon": "./assets/charterIcon.png"
+  },
   "build": {
     "development": {
       "developmentClient": true,

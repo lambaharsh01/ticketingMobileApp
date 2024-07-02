@@ -12,7 +12,7 @@ import BusRoutes from './addDataScreens/addBusRoutes';
 import BusStopInfo from './addDataScreens/addBusStopInfo';
 import TicketStyling from './addDataScreens/addStyling';
 
-import SendOtp from './auth/sendOtp'
+import Initialise from './auth/initialise'
 
 const Stack=createNativeStackNavigator();
 
@@ -23,7 +23,7 @@ export default function Navigation(){
     return(
         <NavigationContainer>
             <Stack.Navigator initialRouteName="SendOtp">
-<Stack.Screen name="SendOtp" component={SendOtp} options={headerShown}/>
+<Stack.Screen name="Initialise" component={Initialise} options={headerShown}/>
 
 
 <Stack.Screen name="Home" component={Home} options={headerShown}/>
