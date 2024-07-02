@@ -45,6 +45,11 @@ const [userName, setUserName]=useState('');
 const [userEmail, setUserEmail]=useState('');
 const [otpEntered, setOtpEntered]=useState('');
 
+const [gender, setGender]=useState('')
+const [age, setAge]=useState('')
+const [district, setDistrict]=useState('')
+const [occupation, setOccupation]=useState('')
+
 function sendOtp(){
 setDisabled(true);
 
