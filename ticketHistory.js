@@ -9,14 +9,15 @@ export default function App(){
 const navigation=useNavigation()
 
 const [tickets, setTickets]=useState([])
-useEffect(async()=>{
-
-let ticketHistory=await getArray('ticketHistory');
-if(ticketHistory){
-    // setLastTicket(ticketHistory);
-    setTickets(ticketHistory.reverse());
-}
+useEffect(()=>{
+    initialise();
 },[]);
+
+async function initialise(){
+    let ticketHistory=await getArray('ticketHistory');
+    if(ticketHistory)
+        setTickets(ticketHistory.reverse());
+}
 
 async function getArray(key){
 try {

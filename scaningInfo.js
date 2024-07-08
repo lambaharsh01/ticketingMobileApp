@@ -11,13 +11,11 @@ export default function App(){
 
 const naviagtion=useNavigation()
 
-useEffect(async() => {
+useEffect(() => {
 
-      // const { status } = await Camera.requestPermissionsAsync();
-      // setHasPermission(status === 'granted');
       setHasPermission(true);
 
-  const backAction = () => {
+      const backAction = () => {
 
       setTextAtraHeight('40%');
 
@@ -169,29 +167,33 @@ const [endingStopsFiltered, setEndingStopsFiltered]=useState([]);
 const [selectedEndingBusStop, setSelectedEndingBusStop]=useState('');
 
 
-useEffect(async()=>{
-const initialCode=await getArray('busInitials');
-if(initialCode){
-  setBusInitials(initialCode);
-}
-const colorCode=await getArray('busColor');
-if(colorCode){
-  setBusColor(colorCode);
-}
-const stops=await getArray('busStops');
-if(stops){
-setBusStops(stops);
-setStatingStopsFiltered(stops);
-setEndingStopsFiltered(stops);
-}
-const routes=await getArray('busRoutes');
-if(routes){
-  setBusRoutes(routes);
-  setFilterBusRoute(routes)
-}
-setModalShow(false);
-setQrValue(["","","",""]);
+useEffect(()=>{
+  asynchronousInitialise()
 },[]);
+
+async function asynchronousInitialise(){
+  const initialCode=await getArray('busInitials');
+  if(initialCode){
+    setBusInitials(initialCode);
+  }
+  const colorCode=await getArray('busColor');
+  if(colorCode){
+    setBusColor(colorCode);
+  }
+  const stops=await getArray('busStops');
+  if(stops){
+  setBusStops(stops);
+  setStatingStopsFiltered(stops);
+  setEndingStopsFiltered(stops);
+  }
+  const routes=await getArray('busRoutes');
+  if(routes){
+    setBusRoutes(routes);
+    setFilterBusRoute(routes)
+  }
+  setModalShow(false);
+  setQrValue(["","","",""]);
+}
 
 
 // VALIDATION MODAL
