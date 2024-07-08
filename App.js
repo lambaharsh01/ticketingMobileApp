@@ -12,7 +12,10 @@ import BusRoutes from './addDataScreens/addBusRoutes';
 import BusStopInfo from './addDataScreens/addBusStopInfo';
 import TicketStyling from './addDataScreens/addStyling';
 
-import Initialise from './auth/initialise'
+import Initialise from './auth/initialise';
+import AuthenticateUserEmail from './auth/authenticateUserEmail';
+import AdminAuth from './auth/adminAuth';
+import UploadTickets from './auth/uploadTickets';
 
 const Stack=createNativeStackNavigator();
 
@@ -22,8 +25,11 @@ export default function Navigation(){
 
     return(
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="SendOtp">
+<Stack.Navigator initialRouteName="Initialise">
 <Stack.Screen name="Initialise" component={Initialise} options={headerShown}/>
+<Stack.Screen name="AuthenticateUserEmail" component={AuthenticateUserEmail} options={headerShown}/>
+<Stack.Screen name="AdminAuth" component={AdminAuth} options={headerShown}/>
+<Stack.Screen name="UploadTickets" component={UploadTickets} options={headerShown}/>
 
 
 <Stack.Screen name="Home" component={Home} options={headerShown}/>

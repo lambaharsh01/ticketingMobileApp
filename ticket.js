@@ -109,25 +109,32 @@ const getValue = async (key) => {
       alert('Something Went Wrong');
   }};
   
-  useEffect(async()=>{
-
-async function getKeyValue(key){
-  let value= await getValue(key);
-  if(isNaN(value))
-  return 0;
-
-  return Number(value);
-}
-      setFontSizeTicket(await getKeyValue('Ticket'));
-      setFontSizeAllTickets(await getKeyValue('AllTickets'));
-      setFontSizeTransportDeptHeading(await getKeyValue('TransportDeptHeading'));
-      setFontSizeSectionHeadings(await getKeyValue('SectionHeadings'));
-      setFontSizeSectionContent(await getKeyValue('SectionContent'));
-      setFontSizeArrival(await getKeyValue('Arrival'));
-      setVerticalSpacing(await getKeyValue('VerticalSpacing'));
+  useEffect(()=>{
+    asynchronousInitialise();
   }, []);
 
-//Style
+  async function asynchronousInitialise(){
+
+    async function getKeyValue(key){
+      let value= await getValue(key);
+      if(isNaN(value))
+      return 0;
+
+      return Number(value);
+    }
+          setFontSizeTicket(await getKeyValue('Ticket'));
+          setFontSizeAllTickets(await getKeyValue('AllTickets'));
+          setFontSizeTransportDeptHeading(await getKeyValue('TransportDeptHeading'));
+          setFontSizeSectionHeadings(await getKeyValue('SectionHeadings'));
+          setFontSizeSectionContent(await getKeyValue('SectionContent'));
+          setFontSizeArrival(await getKeyValue('Arrival'));
+          setVerticalSpacing(await getKeyValue('VerticalSpacing'));
+    
+  }
+
+
+
+  
 const styles=StyleSheet.create({
   dataView:{
     flexDirection:'row', 

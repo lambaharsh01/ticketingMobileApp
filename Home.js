@@ -12,13 +12,16 @@ const headerImg=require('./initials/topSection.png');
 const buliten=require('./initials/bulitenSection.png');
 
 const [lastTickets, setLastTicket]=useState([]);
-useEffect(async()=>{
-
-let ticketHistory=await getArray('ticketHistory');
-if(ticketHistory){
-    setLastTicket([ticketHistory[ticketHistory.length-1]]);
-}
+useEffect(()=>{
+    initialise()
 },[]);
+
+async function initialise(){
+    let ticketHistory=await getArray('ticketHistory');
+    if(ticketHistory){
+        setLastTicket([ticketHistory[ticketHistory.length-1]]);
+    }
+}
 
 async function getArray(key){
 try {
@@ -28,7 +31,6 @@ try {
     alert('Something Went Wrong');
 }
 };
-
 
 function formatDate(dateString){
 let date=new Date(dateString);
@@ -58,26 +60,8 @@ if(date!==undefined && date!=='undefined'){
 
 
 
-  const [showLoading, setShowLoading]=useState(false);
+const [showLoading, setShowLoading]=useState(false);
   
-//   const handleScroll = async(event) => {
-//     const currentPosition = event.nativeEvent.contentOffset.y;
-
-//     if (currentPosition === 0) {
-//         setShowLoading(true);
-        
-//         let ticketHistory=await getArray('ticketHistory');
-//         if(ticketHistory){
-//             setLastTicket([ticketHistory[ticketHistory.length-1]]);
-//         }
-
-
-//         setTimeout(()=>{
-//             setShowLoading(false);
-//         },1500)
-//     }
-//   };
-
 
 let scrollPosition = useState(0);
 
@@ -194,8 +178,8 @@ return(
 </Pressable>
 </View>
 
-{lastTickets.map(element=>(
-<View style={cardStyle.mainDiv}>
+{lastTickets.map((element, index)=>(
+<View key={'tickets'+index} style={cardStyle.mainDiv}>
     <Pressable onPress={()=>{
         navigation.navigate("Ticket", element)}}>
         <View style={cardStyle.boxShadow}>
@@ -304,50 +288,3 @@ ticketStatusDIv:{width:'50%', backgroundColor:'white',  flexDirection:'row', ali
     },
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// {
-//     "cli": {
-//       "version": ">= 7.6.0"
-//     },
-//     "build": {
-//       "development": {
-//         "developmentClient": true,
-//         "distribution": "internal"
-//       },
-//       "preview": {
-//         "ios":{
-//           "simulator":true
-//         },
-//         "android":{
-//           "buildType":"apk"
-//         }
-//       },
-//       "production": {}
-//     },
-//     "submit": {
-//       "production": {}
-//     }
-//   }
-  
-  
