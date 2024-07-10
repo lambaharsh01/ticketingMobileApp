@@ -1,8 +1,0 @@
-userEmail // contains user email obtained at the time of authentication
-levelOfAuthorisation // contains numbers from 1-2
-    null mean no user varification has been done 
-    1 means email authentication completed waiting for confirmation by the admin
-    2 means email authentication is completed ready for dashboard and using the app
-validUntil // has the date till which admin has aproved the ticketing;
-ticketUploadInterval // after how many tickets the upload is important 
-ticketRecords // array of objects has all the tickets;

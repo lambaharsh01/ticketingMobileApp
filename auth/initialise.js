@@ -4,19 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useNavigation } from '@react-navigation/native';
 
-
 const charterIcon=require('../assets/charterIcon.png');
 
 export default function App(){
 
   const naviagtion=useNavigation();
   
-  
   useEffect(()=>{
-
-  
     getParameters()
-  
   });
 
 const getArray = async (key) => {
@@ -30,6 +25,17 @@ const getArray = async (key) => {
 
 async function getParameters(){
 
+   let levelOfAuthorisation=await AsyncStorage.getItem('levelOfAuthorisation');
+   let userEmail= await AsyncStorage.getItem('userEmail');
+   let validUntil=await AsyncStorage.getItem('validUntil');
+
+  if(!levelOfAuthorisation || !userEmail)
+    return naviagtion.navigate("AuthenticateUserEmail");
+  
+  if(levelOfAuthorisation===1 || levelOfAuthorisation==='1') 
+    return naviagtion.navigate("AdminAuth");
+
+
   let ticketUploadInterval=Number(await AsyncStorage.getItem('ticketUploadInterval') ?? 30) ;
   
   let ticketRecords=await getArray('ticketRecords');
@@ -39,13 +45,7 @@ async function getParameters(){
     return naviagtion.navigate("UploadTickets");
 
   if((ticketUploadInterval-ticketRecords)<4)
-    Alert.alert('Ticket Limit', `${(ticketUploadInterval-ticketRecords)} more tickets can be taken before upload`);
-
-
-  //page redirection
-  let levelOfAuthorisation=await AsyncStorage.getItem('levelOfAuthorisation');
-  let validUntil=await AsyncStorage.getItem('validUntil');
-
+    Alert.alert('Ticket Limit', `${(ticketUploadInterval-ticketRecords)} more tickets can be generated (Upload data to the cloud so you can generate tickets without disruption)`);
   
   let dateRegex = /^\d{4}-\d{2}-\d{2}$/;
   if(dateRegex.test(validUntil)){
@@ -61,16 +61,8 @@ async function getParameters(){
     Alert.alert('Admin Authentication', `${daysDifference===1 ? '1 day': daysDifference+ 'days'} left for admin Re-authentication`);
   }
   
-  if(!levelOfAuthorisation) return naviagtion.navigate("AuthenticateUserEmail");
-  
-  if(levelOfAuthorisation===1 || levelOfAuthorisation==='1') 
-    return naviagtion.navigate("AdminAuth");
-  
-    if(levelOfAuthorisation===2 || levelOfAuthorisation==='2') 
+  if(levelOfAuthorisation===2 || levelOfAuthorisation==='2') 
     return naviagtion.navigate("Home");
-
-
-
 
 }
 

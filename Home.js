@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import {View, ScrollView, StatusBar, Text, StyleSheet, Pressable, ActivityIndicator, Image, Platform, Settings } from 'react-native';
+import {View, ScrollView, StatusBar, Text, StyleSheet, Pressable, ActivityIndicator, Image, Platform, BackHandler, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useState, useEffect } from 'react';
@@ -14,7 +14,20 @@ const buliten=require('./initials/bulitenSection.png');
 const [lastTickets, setLastTicket]=useState([]);
 useEffect(()=>{
     initialise()
-},[]);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
+
+  function backAction(){
+      Alert.alert("Are you sure?", "Are you sure you want to exit the app", [
+        {text: "CANCEL", onPress: () => null, style: "cancel"},
+        { text: "EXIT", onPress: () => {
+          BackHandler.exitApp();
+        }}
+      ]);
+    return true; 
+  };
+
 
 async function initialise(){
     let ticketHistory=await getArray('ticketHistory');
@@ -28,7 +41,7 @@ try {
     const jsonValue = await AsyncStorage.getItem(key);
     return jsonValue != null ? JSON.parse(jsonValue) : null;
 }catch (error) {
-    alert('Something Went Wrong');
+    Alert.alert('Something Went Wrong');
 }
 };
 
@@ -140,7 +153,7 @@ return(
     </View>
 </View>
 
-<View style={{flexDirection:'row', marginTop:20, marginBottom:30}}>
+<View style={{flexDirection:'row', marginTop:28, marginBottom:30}}>
     <View style={styles.outerDiv}>
 
     <Pressable onPress={()=>{navigation.navigate("BusStopInfo")}}>
@@ -148,23 +161,38 @@ return(
             <Ionicons size={40} name="grid"/>
         </View>
     </Pressable>
-
         <Text style={{textAlign:'center'}}>Bus Stops</Text>
     </View>
 
     <View style={styles.outerDiv}>
-
     <Pressable onPress={()=>{navigation.navigate("TicketStyling")}}>
         <View style={styles.innerDiv}>
             <Ionicons size={40} name="albums"/>
         </View>
     </Pressable>
-
         <Text style={{textAlign:'center'}}>Ticket Styling</Text>
+    </View>
+
+    <View style={styles.outerDiv}>
+    <Pressable onPress={()=>{navigation.navigate("UploadTickets")}}>
+        <View style={styles.innerDiv}>
+            <Ionicons size={40} name="cloud-upload"/>
+        </View>
+    </Pressable>
+        <Text style={{textAlign:'center'}}>Upload Tickets</Text>
+    </View>
+
+    <View style={styles.outerDiv}>
+    <Pressable onPress={()=>{navigation.navigate("AdminAuth")}}>
+        <View style={styles.innerDiv}>
+            <Ionicons size={40} name="refresh-circle"/>
+        </View>
+    </Pressable>
+        <Text style={{textAlign:'center'}}>Admin Auth</Text>
     </View>
 </View>
 
-<Image source={buliten} style={{width:'100%', height:130}}/>
+<Image source={buliten} style={{width:'100%', height:130, marginTop:18}}/>
 
 
 
