@@ -17,6 +17,26 @@ export default function App(){
 
   const [uploadingDataMessage, setUploadingDataMessage]=useState('Uplaoding Data...');
 
+  const getArray = async (key) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      return jsonValue != null ? JSON.parse(jsonValue) : null;
+    }catch (error) {
+      Alert.alert('Something Went Wrong');
+    }
+  };
+
+  async function saveArray(key, array){
+    try {
+      const jsonValue = JSON.stringify(array);
+      await AsyncStorage.setItem(key, jsonValue);
+    } catch (error) {
+      alert('Something Went Wrong');
+    }
+  };
+  
+
+
   async function uploadData(){
     setUploading(true);
 
@@ -26,9 +46,22 @@ export default function App(){
             setUploadingDataMessage('Uplaoding Data...');
                 setTimeout(()=>{
                     setUploadingDataMessage('Almost there...');
+                    setUploading(false);
                 }, 5000)
         }, 2000);
     }, 1500);
+
+
+    let ticketArray=await getArray('ticketRecords');
+    let userEmail=await AsyncStorage.getItem('userEmail');
+
+    axios.post(baseUri+'/api/tickets/insertTicketTransactions', {ticketArray, userEmail})
+    .then(async(res)=>{
+      await saveArray('ticketRecords', []);
+      return naviagtion.navigate("Home");
+    }).catch(err=>{
+        Alert.alert('Something Went Wrong', 'Please try again after some time');
+    })
     
   }
 

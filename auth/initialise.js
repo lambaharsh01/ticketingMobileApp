@@ -19,11 +19,30 @@ export default function App(){
   
   });
 
+const getArray = async (key) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      return jsonValue ? JSON.parse(jsonValue) : [];
+    }catch (error) {
+      Alert.alert('Something Went Wrong');
+    }
+  };
+
 async function getParameters(){
 
+  let ticketUploadInterval=Number(await AsyncStorage.getItem('ticketUploadInterval') ?? 30) ;
+  
+  let ticketRecords=await getArray('ticketRecords');
+  ticketRecords=ticketRecords.length;
 
-  return naviagtion.navigate("UploadTickets");
+  if((ticketUploadInterval-ticketRecords)<1)
+    return naviagtion.navigate("UploadTickets");
 
+  if((ticketUploadInterval-ticketRecords)<4)
+    Alert.alert('Ticket Limit', `${(ticketUploadInterval-ticketRecords)} more tickets can be taken before upload`);
+
+
+  //page redirection
   let levelOfAuthorisation=await AsyncStorage.getItem('levelOfAuthorisation');
   let validUntil=await AsyncStorage.getItem('validUntil');
 
@@ -39,32 +58,20 @@ async function getParameters(){
     let daysDifference = Math.ceil(timeDifference / (1000 * 1000 * 60 * 24));
 
     if(daysDifference<4)
-    Alert.alert('Admin Authentication', `${daysDifference===1 ? '1 day': daysDifference+ 'days'} left for admin re authentication`)
+    Alert.alert('Admin Authentication', `${daysDifference===1 ? '1 day': daysDifference+ 'days'} left for admin Re-authentication`);
   }
   
-  // 0/null = not started yet page redirect authenticateUserEmail
   if(!levelOfAuthorisation) return naviagtion.navigate("AuthenticateUserEmail");
   
-  // 1= email authentication completed waiting for confirmation by the admin
   if(levelOfAuthorisation===1 || levelOfAuthorisation==='1') 
     return naviagtion.navigate("AdminAuth");
   
-  
-  // 2= email authentication is completed ready for dashboard and using the app
-  if(levelOfAuthorisation===2 || levelOfAuthorisation==='2') 
+    if(levelOfAuthorisation===2 || levelOfAuthorisation==='2') 
     return naviagtion.navigate("Home");
 
- 
-  // if requested re authorisation dont show the pop up untill date reached
-
-  // when to uploadTickets get over 30 notificationPopUp upload/ later
-  // when 35 only upload
 
 
 
-  // console.log(await AsyncStorage.getItem('emailId'))
-
-  await AsyncStorage.setItem('emailId', 'ooooooo')
 }
 
 return(

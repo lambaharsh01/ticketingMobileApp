@@ -28,10 +28,15 @@ console.log(userEmail)
 
   axios.get( baseUri+'/api/user/getAdminAuthenticationDate/'+userEmail)
   .then(async(res)=>{
+    console.log(res.data)
     if(res.data.success){
-      if(res.data.date){
-        await AsyncStorage.setItem('validUntil', res.data.date);
+      if(res.data.data.validUntil && res.data.data.ticketUploadInterval){
+        await AsyncStorage.setItem('validUntil', res.data.data.validUntil);
+        await AsyncStorage.setItem('ticketUploadInterval', res.data.data.ticketUploadInterval.toString());
         await AsyncStorage.setItem('levelOfAuthorisation', '2');
+        Alert.alert('Admin Authentication Success', `You can generate tickets till ${res.data.data.validUntil} and youll be required to upload your ticket data with the generation of every ${res.data.data.ticketUploadInterval} tickets`,[
+          {text: 'OK', onPress: ()=>{ naviagtion.navigate("Home"); }},
+        ]);
       }
     }
     
