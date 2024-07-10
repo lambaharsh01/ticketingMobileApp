@@ -69,7 +69,6 @@ return(
 {tickets.map(element=>(
 <View style={cardStyle.mainDiv}>
     <Pressable onPress={()=>{
-        // console.log(element.currentDate, 'lololo');
         navigation.navigate("Ticket", element)
         }}>
         <View style={cardStyle.boxShadow}>

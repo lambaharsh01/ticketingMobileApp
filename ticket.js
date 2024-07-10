@@ -1,5 +1,5 @@
-import {View, ScrollView, StatusBar, TextInput, Text, StyleSheet, BackHandler, Pressable, Modal, Alert, Switch,Dimensions } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import {View, StatusBar, Text, StyleSheet, BackHandler, Pressable, Dimensions } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -111,7 +111,17 @@ const getValue = async (key) => {
   
   useEffect(()=>{
     asynchronousInitialise();
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
   }, []);
+
+
+  function backAction(){
+    navigation.navigate("Home");
+    return true;
+  }
+
 
   async function asynchronousInitialise(){
 

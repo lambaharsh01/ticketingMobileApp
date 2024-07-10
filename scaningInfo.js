@@ -12,67 +12,50 @@ export default function App(){
 const naviagtion=useNavigation()
 
 useEffect(() => {
-
-      setHasPermission(true);
-
-      const backAction = () => {
-
-      setTextAtraHeight('40%');
-
-      if(inputs[0].current){
-        inputs[0].current.blur();
-      }
-      if(inputs[1].current){
-        inputs[1].current.blur();
-      }
-      if(inputs[2].current){
-        inputs[2].current.blur();
-      }
-      if(inputs[3].current){
-        inputs[3].current.blur();
-      }
-      
-    };
   const backHandler = BackHandler.addEventListener('hardwareBackPress',backAction);
   return () => {backHandler.remove();}
 }, []);
 
+function backAction(){
 
+  setTextAtraHeight('40%');
 
-
-
-
-
-
-// QR CODE
-// QR CODE
-const [hasPermission, setHasPermission] = useState(null);
-const [scanned, setScanned] = useState(false);
-// const cameraRef = useRef(null);
-
-const handleBarCodeScanned = ({ type, data }) => {
-  setScanned(true);
-
-  if(data.length===4){
-
-  }else{
-    Alert.alert('Invalid QR', `QR should contain 4 digits this contains ${data.length}, Do you want to continue?`,[{text:'Continue', 
-    onPress:()=>{
-      setQrValue([data[0]|| 0, data[1]|| 0, data[2]|| 0, data[3]|| 0]);
-      setModalShow(true);
-    }},{text:'Cancel', onPress:()=>{setQrValue(['','','','']);  setScanned(false);}}, ])
-   
+  if(inputs[0].current){
+    inputs[0].current.blur();
   }
+  if(inputs[1].current){
+    inputs[1].current.blur();
+  }
+  if(inputs[2].current){
+    inputs[2].current.blur();
+  }
+  if(inputs[3].current){
+    inputs[3].current.blur();
+  }
+
+  if(!modalShow){
+    naviagtion.navigate("Home");
+  }else{
+    setModalShow(false);
+  }
+  
+
+  return true;
+  
 };
 
-// if (hasPermission === null) {
-//   return <View />;
-// }
-// if (hasPermission === false) {
-//   return <Text>No access to camera</Text>;
-// }
+
+
+
+
+
+
 
 // QR CODE
+const [hasPermission, setHasPermission] = useState(null);
+
+
+
 // QR CODE
 
 
@@ -119,8 +102,9 @@ async function saveArray(key, array){
   try {
     const jsonValue = JSON.stringify(array);
     await AsyncStorage.setItem(key, jsonValue);
+    return true;
   } catch (error) {
-    alert('Something Went Wrong');
+    Alert.alert('Something Went Wrong');
   }
 };
 
@@ -136,9 +120,9 @@ function filterStringsBySubstring(strings, substring) {
 const getArray = async (key) => {
   try {
     const jsonValue = await AsyncStorage.getItem(key);
-    return jsonValue != null ? JSON.parse(jsonValue) : null;
+    return jsonValue != null ? JSON.parse(jsonValue) : [];
   }catch (error) {
-    alert('Something Went Wrong');
+    Alert.alert('Something Went Wrong');
   }
 };
 
@@ -165,6 +149,8 @@ const [selectedStartingBusStop, setSelectedStartingBusStop]=useState('');
 
 const [endingStopsFiltered, setEndingStopsFiltered]=useState([]);
 const [selectedEndingBusStop, setSelectedEndingBusStop]=useState('');
+
+const [disableNextButton, setDisableNextButton]=useState(false);
 
 
 useEffect(()=>{
@@ -196,8 +182,75 @@ async function asynchronousInitialise(){
 }
 
 
-// VALIDATION MODAL
-// VALIDATION MODAL
+
+async function saveToStoageAndMoveToTickets(){
+
+  setDisableNextButton(true);
+
+  let plainText='Please Select ';
+  let validation=0;
+  
+    if(!busInitials[selectedInitial]){
+      validation++;
+      plainText+='Bus Initials, '
+    }
+    if(!busColor[selectedColor]){
+      validation++;
+      plainText+='Bus Color, '
+    }
+    if(selectedBusRoute.length<2){
+      validation++;
+      plainText+='Bus Route, '
+    }
+    if(selectedStartingBusStop.length<2){
+      validation++;
+      plainText+='Starting Stop, '
+    }
+  
+    if(selectedEndingBusStop.length<2){
+      validation++;
+      plainText+='Ending Stop.'
+    }
+  
+  if(validation){
+    Alert.alert('Please Check', plainText);
+  }else{
+  
+    const ticketObject={
+      busNumber:busInitials[selectedInitial]+qrValue.join(''),
+      backgroundColor:busColor[selectedColor],
+      busRoute:selectedBusRoute,
+      startingStop:selectedStartingBusStop,
+      endingBusStop:selectedEndingBusStop,
+      ticketPrice:ticketFare,
+      discount:ticketDiscount,
+      discountedPrice:ticketDiscountedFare,
+      ticketCount:ticketCount,
+      currentDate:JSON.stringify(new Date()).replaceAll('"','')
+      }
+  
+  
+    //saving ticket history
+    let ticketHistory=await getArray('ticketHistory');
+  
+    if(ticketHistory.length>9)
+    ticketHistory.shift();
+  
+    ticketHistory.push(ticketObject);
+    
+    await saveArray('ticketHistory', ticketHistory);
+  
+    //saving uploading records
+    let ticketRecords=await getArray('ticketRecords');
+
+    ticketRecords.push(ticketObject)
+    await saveArray('ticketRecords', ticketRecords);
+  
+    //navigatingTo ticket page
+    setDisableNextButton(false);
+    naviagtion.navigate("Ticket", ticketObject)
+  }
+  }
 
 
 
@@ -213,15 +266,7 @@ return(
   <StatusBar backgroundColor='#00adb0' />
   <View style={styles.mainView}>
   <View style={styles.container}>
-      {/* <Camera
-        style={[StyleSheet.absoluteFillObject, { height: '70%' }]}
-
-        type={Camera.Constants.Type.back}
-        ref={cameraRef}
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-      /> */}
-      {scanned && <Text style={styles.scanText}></Text>}
-    </View>
+  </View>
 
   </View>
 
@@ -234,17 +279,16 @@ return(
 
 <View style={{flexDirection:'row'}}>
       <View style={styles.textView}>
-      <TextInput value={qrValue[0]} ref={inputs[0]} keyboardType='numeric' onKeyPress={handleTextChange0} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')} />
+        <TextInput value={qrValue[0]} ref={inputs[0]} keyboardType='numeric' onKeyPress={handleTextChange0} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')} />
       </View>
       <View style={styles.textView}>
-      <TextInput value={qrValue[1]} ref={inputs[1]} keyboardType='numeric' onKeyPress={handleTextChange1} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')}/>
+        <TextInput value={qrValue[1]} ref={inputs[1]} keyboardType='numeric' onKeyPress={handleTextChange1} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')}/>
       </View>
       <View style={styles.textView}>
-      <TextInput value={qrValue[2]} ref={inputs[2]} keyboardType='numeric' onKeyPress={handleTextChange2} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')} />
+        <TextInput value={qrValue[2]} ref={inputs[2]} keyboardType='numeric' onKeyPress={handleTextChange2} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')} />
       </View>
       <View style={styles.textView}>
-      <TextInput value={qrValue[3]} ref={inputs[3]} keyboardType='numeric' onKeyPress={({nativeEvent})=>{setInputValues(nativeEvent.key, 3)
-        /*handleTextChange3*/
+        <TextInput value={qrValue[3]} ref={inputs[3]} keyboardType='numeric' onKeyPress={({nativeEvent})=>{setInputValues(nativeEvent.key, 3)
         if(nativeEvent.key!=='Backspace'){
           setModalShow(true);
         }}} onChange={()=>{}} style={styles.textInputs} onFocus={()=>setTextAtraHeight('80%')}/>
@@ -254,12 +298,7 @@ return(
     </View>
   </View>
 
-
-
 {/* VALIDATION MODAL */}
-{/* VALIDATION MODAL */}
-{/* VALIDATION MODAL */}
-
 
 <Modal 
 visible={modalShow}
@@ -271,200 +310,103 @@ style={{flex:1}}
 <Text style={modalStyles.validationHeaderText}>Validation</Text>  
 
 <ScrollView style={{paddingHorizontal:10}}>
-<Text style={modalStyles.validationCheckpoints}>Bus Initial/Starting Code</Text>
+  <Text style={modalStyles.validationCheckpoints}>Bus Initial/Starting Code</Text>
 
-<View style={modalStyles.elementFlexBox}>
-{busInitials.map((element, index)=>(
-  <Pressable key={'initials'+index} style={[modalStyles.selectionButton, selectedInitial===index && modalStyles.selectedButton]} onPress={()=>{setSelectedInitial(index)}}>
-  <Text style={modalStyles.buttonText}>{element}</Text>
-</Pressable>  
-))}
-</View>
-
-
-
-<Text style={modalStyles.validationCheckpoints}>Bus Color Code</Text>
-
-<View style={modalStyles.elementFlexBox}>
-{busColor.map((element, index)=>(
-  <Pressable key={'color'+index} style={[modalStyles.selectionColorPalet,{backgroundColor:element, width:38}, selectedColor===index && modalStyles.selectedColorPalet]} onPress={()=>{setSelectedColor(index)}}>
-  <Text style={modalStyles.buttonText}></Text>
-</Pressable>  
-))}
-</View>
+  <View style={modalStyles.elementFlexBox}>
+  {busInitials.map((element, index)=>(
+      <Pressable key={'initials'+index} style={[modalStyles.selectionButton, selectedInitial===index && modalStyles.selectedButton]} onPress={()=>{setSelectedInitial(index)}}>
+        <Text style={modalStyles.buttonText}>{element}</Text>
+      </Pressable>  
+    ))}
+  </View>
 
 
 
+  <Text style={modalStyles.validationCheckpoints}>Bus Color Code</Text>
 
-<Text style={modalStyles.validationCheckpoints}>Bus Route</Text>
-<TextInput style={modalStyles.searchInput} value={selectedBusRoute} onChangeText={(text)=>{
-  setSelectedBusRoute(text);
-  const filtered = filterStringsBySubstring(busRoutes, text);
-  setFilterBusRoute(filtered);
-}}/>
-
-<View style={modalStyles.elementFlexBox}>
-
-{filterBusRoute.map((element, index)=>(
-  <Pressable key={'route'+index} style={[modalStyles.selectionButton]} onPress={()=>{setSelectedBusRoute(element)}}>
-  <Text style={modalStyles.buttonText}>{element}</Text>
-</Pressable>  
-))}
-</View>
+  <View style={modalStyles.elementFlexBox}>
+    {busColor.map((element, index)=>(
+      <Pressable key={'color'+index} style={[modalStyles.selectionColorPalet,{backgroundColor:element, width:38}, selectedColor===index && modalStyles.selectedColorPalet]} onPress={()=>{setSelectedColor(index)}}>
+        <Text style={modalStyles.buttonText}></Text>
+      </Pressable>  
+    ))}
+  </View>
 
 
 
 
+  <Text style={modalStyles.validationCheckpoints}>Bus Route</Text>
+  <TextInput style={modalStyles.searchInput} value={selectedBusRoute} onChangeText={(text)=>{
+    setSelectedBusRoute(text);
+    const filtered = filterStringsBySubstring(busRoutes, text);
+    setFilterBusRoute(filtered);
+  }}/>
 
-<Text style={modalStyles.validationCheckpoints}>Starting Stop</Text>
-<TextInput style={modalStyles.searchInput} value={selectedStartingBusStop} onChangeText={(text)=>{
-  setSelectedStartingBusStop(text);
-  const filtered = filterStringsBySubstring(busStops, text);
-  setStatingStopsFiltered(filtered);
-}}/>
-
-<View style={modalStyles.elementFlexBox}>
-
-{statingStopsFiltered.map((element, index)=>(
-  <Pressable key={'startingStop'+index} style={[modalStyles.selectionButton]} onPress={()=>{setSelectedStartingBusStop(element)}}>
-  <Text style={modalStyles.buttonText}>{element}</Text>
-</Pressable>  
-))}
-</View>
-
-
-<Text style={modalStyles.validationCheckpoints}>Ending Stop</Text>
-<TextInput style={modalStyles.searchInput} value={selectedEndingBusStop} onChangeText={(text)=>{
-  setSelectedEndingBusStop(text);
-  const filtered = filterStringsBySubstring(busStops, text);
-  setEndingStopsFiltered(filtered);
-}}/>
-
-<View style={modalStyles.elementFlexBox}>
-{endingStopsFiltered.map((element, index)=>(
-  <Pressable key={'endingStop'+index} style={[modalStyles.selectionButton]} onPress={()=>{setSelectedEndingBusStop(element)}}>
-  <Text style={modalStyles.buttonText}>{element}</Text>
-</Pressable>  
-))}
-</View>
-
-
-<Text style={modalStyles.validationCheckpoints}>Ticket Fare</Text>
-<TextInput style={modalStyles.searchInput} value={ticketFare} onChangeText={setTicketFare}/>
-
-
-<View style={{flexDirection:'row', justifyContent:'space-between'}}>
-<Text style={modalStyles.validationCheckpoints}>Ticket Discount?</Text>
-<Switch value={ticketDiscount} onValueChange={()=>{setTicketDIscount(!ticketDiscount)}} style={{marginTop:12}} />
-</View>
-
-<Text style={modalStyles.validationCheckpoints}>Ticket Discounted Fare</Text>
-{ticketDiscount && (
-<TextInput style={modalStyles.searchInput} value={ticketDiscountedFare} onChangeText={setTicketDiscountedFare}/>
-)}
-{!ticketDiscount && (
-<Text>N/A</Text>
-)}
-
-
-
-<Text style={modalStyles.validationCheckpoints}>Number of Tickets</Text>
-<TextInput style={modalStyles.searchInput} value={ticketCount} onChangeText={setTicketCount}/>
-
-
-
-<Pressable onPress={async()=>{
-
-let plainText='Please Select ';
-let validation=0;
-
-  if(!busInitials[selectedInitial]){
-    validation++;
-    plainText+='Bus Initials, '
-  }
-  if(!busColor[selectedColor]){
-    validation++;
-    plainText+='Bus Color, '
-  }
-  if(selectedBusRoute.length<2){
-    validation++;
-    plainText+='Bus Route, '
-  }
-  if(selectedStartingBusStop.length<2){
-    validation++;
-    plainText+='Starting Stop, '
-  }
-
-  if(selectedEndingBusStop.length<2){
-    validation++;
-    plainText+='Ending Stop.'
-  }
-
-if(validation){
-  Alert.alert('Please Check', plainText);
-}else{
+  <View style={modalStyles.elementFlexBox}>
+    {filterBusRoute.map((element, index)=>(
+      <Pressable key={'route'+index} style={[modalStyles.selectionButton]} onPress={()=>{setSelectedBusRoute(element)}}>
+        <Text style={modalStyles.buttonText}>{element}</Text>
+      </Pressable>  
+    ))}
+  </View>
 
 
 
 
 
+  <Text style={modalStyles.validationCheckpoints}>Starting Stop</Text>
+  <TextInput style={modalStyles.searchInput} value={selectedStartingBusStop} onChangeText={(text)=>{
+    setSelectedStartingBusStop(text);
+    const filtered = filterStringsBySubstring(busStops, text);
+    setStatingStopsFiltered(filtered);
+  }}/>
+
+  <View style={modalStyles.elementFlexBox}>
+    {statingStopsFiltered.map((element, index)=>(
+      <Pressable key={'startingStop'+index} style={[modalStyles.selectionButton]} onPress={()=>{setSelectedStartingBusStop(element)}}>
+        <Text style={modalStyles.buttonText}>{element}</Text>
+      </Pressable>  
+    ))}
+  </View>
 
 
+    <Text style={modalStyles.validationCheckpoints}>Ending Stop</Text>
+    <TextInput style={modalStyles.searchInput} value={selectedEndingBusStop} onChangeText={(text)=>{
+      setSelectedEndingBusStop(text);
+      const filtered = filterStringsBySubstring(busStops, text);
+      setEndingStopsFiltered(filtered);
+  }}/>
+
+  <View style={modalStyles.elementFlexBox}>
+    {endingStopsFiltered.map((element, index)=>(
+        <Pressable key={'endingStop'+index} style={[modalStyles.selectionButton]} onPress={()=>{setSelectedEndingBusStop(element)}}>
+          <Text style={modalStyles.buttonText}>{element}</Text>
+        </Pressable>  
+    ))}
+  </View>
 
 
+  <Text style={modalStyles.validationCheckpoints}>Ticket Fare</Text>
+  <TextInput style={modalStyles.searchInput} value={ticketFare} onChangeText={setTicketFare}/>
 
 
-  let history=await getArray('ticketHistory');
-  let ary=[]
-  if(history){
-    ary=history;
-  }
-  if(ary.length>9){
-    ary.shift();
-  }
+  <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+    <Text style={modalStyles.validationCheckpoints}>Ticket Discount?</Text>
+    <Switch value={ticketDiscount} onValueChange={()=>{setTicketDIscount(!ticketDiscount)}} style={{marginTop:12}} />
+  </View>
 
-  ary.push({
-  busNumber:busInitials[selectedInitial]+qrValue.join(''),
-  backgroundColor:busColor[selectedColor],
-  busRoute:selectedBusRoute,
-  startingStop:selectedStartingBusStop,
-  endingBusStop:selectedEndingBusStop,
-  ticketPrice:ticketFare,
-  discount:ticketDiscount,
-  discountedPrice:ticketDiscountedFare,
-  ticketCount:ticketCount,
-  currentDate:new Date()
-  });
+  <Text style={modalStyles.validationCheckpoints}>Ticket Discounted Fare</Text>
+  {ticketDiscount && (
+  <TextInput style={modalStyles.searchInput} value={ticketDiscountedFare} onChangeText={setTicketDiscountedFare}/>
+  )}
+  {!ticketDiscount && (
+  <Text>N/A</Text>
+  )}
 
-  
-  await saveArray('ticketHistory', ary);
+  <Text style={modalStyles.validationCheckpoints}>Number of Tickets</Text>
+  <TextInput style={modalStyles.searchInput} value={ticketCount} onChangeText={setTicketCount}/>
 
-
-
-
-
-naviagtion.navigate("Ticket", {busNumber:busInitials[selectedInitial]+qrValue.join(''),
-  backgroundColor:busColor[selectedColor],
-  busRoute:selectedBusRoute,
-  startingStop:selectedStartingBusStop,
-  endingBusStop:selectedEndingBusStop,
-  ticketPrice:ticketFare,
-  discount:ticketDiscount,
-  discountedPrice:ticketDiscountedFare,
-  ticketCount:ticketCount,
-  currentDate:new Date()
-})
-
-
-
-
-
-
-
-
-}
-
-}}  style={modalStyles.saveButton}><Text style={[modalStyles.buttonText, modalStyles.saveButtonText]}>Next</Text></Pressable> 
+  <Pressable onPress={()=>{saveToStoageAndMoveToTickets()}} disabled={disableNextButton} style={modalStyles.saveButton}><Text style={[modalStyles.buttonText, modalStyles.saveButtonText]}>Next</Text></Pressable> 
 
 
 </ScrollView>
