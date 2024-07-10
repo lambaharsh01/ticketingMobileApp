@@ -26,15 +26,9 @@ export default function App(){
       Alert.alert("Are you sure?", "All the changes will be lost if you exit now.", [
         {text: "CANCEL", onPress: () => null, style: "cancel"},
         { text: "EXIT", onPress: () => {
-          setUserEmail('');
-          setUserName('');
-          setOtpEntered('');
-          
-          setGender(null);
-          setDistrict(null);
-          setDateOfBirth(new Date());
-          setProcess(0);
-          setIsLoading(false);
+         
+          reloadStates(); 
+
           BackHandler.exitApp();
         }}
       ]);
@@ -110,6 +104,7 @@ setIsLoading(true);
     setIsLoading(false);
   }).catch(err=>{
     Alert.alert('Something Went Wrong', 'Please try again after some time');
+    reloadStates(); 
   });
 }
 
@@ -127,7 +122,7 @@ function checkOtp(){
     setOtpEntered('')
   }).catch(err=>{
     Alert.alert('Something Went Wrong', 'Please try again after some time');
-    setOtpEntered('')
+    reloadStates(); 
   });
 }
 
@@ -158,9 +153,8 @@ function saveBasicDetails(){
     saveEmailAndProceed();
 
   }).catch(err=>{
-    console.log(err)
-    setIsLoading(false);
     Alert.alert('Something Went Wrong', 'Please try again after some time'+err);
+    reloadStates();
   });
 }
 
@@ -171,6 +165,23 @@ async function saveEmailAndProceed(){
 
   return naviagtion.navigate("AdminAuth");
 };
+
+
+function reloadStates(){
+          setUserEmail('');
+          setUserName('');
+          setOtpEntered('');
+          
+          setGender(null);
+          setDistrict(null);
+          setDateOfBirth(new Date());
+          setGenderDropdown(false);
+          setDistrictDropdown(false);
+          setProcess(0);
+          setIsLoading(false);
+
+          return true;         
+}
   
 return(
 <View style={{flex:1, alignItems:'center'}}>

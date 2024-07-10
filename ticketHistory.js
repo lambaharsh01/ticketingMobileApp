@@ -66,8 +66,8 @@ return(
 <Text style={{paddingLeft:5, fontSize:17}}>All Tickets</Text>
 </View>
 
-{tickets.map(element=>(
-<View style={cardStyle.mainDiv}>
+{tickets.map((element, index)=>(
+<View style={cardStyle.mainDiv} key={'TicketNum'+index}>
     <Pressable onPress={()=>{
         navigation.navigate("Ticket", element)
         }}>
