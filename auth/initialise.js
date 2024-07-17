@@ -11,7 +11,7 @@ export default function App(){
   const naviagtion=useNavigation();
   
   useEffect(()=>{
-    getParameters()
+    getParameters();
   });
 
 const getArray = async (key) => {
